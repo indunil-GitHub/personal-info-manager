@@ -1,9 +1,9 @@
-// Firebase imports
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
-import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
+// Firebase SDK
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// Your Firebase config
+// Config from your Firebase project
 const firebaseConfig = {
   apiKey: "AIzaSyD-Q46deIPhUBiAUemx7WPZQEUPSU7jpOw",
   authDomain: "personalinfomanager-f12d1.firebaseapp.com",
@@ -14,81 +14,89 @@ const firebaseConfig = {
   measurementId: "G-2XQR8GNZ10"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Elements
-const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
+// DOM elements
+const email = document.getElementById("email");
+const password = document.getElementById("password");
 const loginBtn = document.getElementById("loginBtn");
 const signupBtn = document.getElementById("signupBtn");
-
-const nameInput = document.getElementById("name");
-const phoneInput = document.getElementById("phone");
-const addressInput = document.getElementById("address");
-const saveBtn = document.getElementById("saveBtn");
-
+const logoutBtn = document.getElementById("logoutBtn");
 const authSection = document.getElementById("auth-section");
 const formSection = document.getElementById("form-section");
 
-// Sign Up
-signupBtn.addEventListener("click", async () => {
-  const email = emailInput.value;
-  const password = passwordInput.value;
-  try {
-    await createUserWithEmailAndPassword(auth, email, password);
-    alert("Signup successful!");
-  } catch (error) {
-    alert("Signup failed: " + error.message);
-  }
-});
+const nameField = document.getElementById("name");
+const phoneField = document.getElementById("phone");
+const addressField = document.getElementById("address");
+const saveBtn = document.getElementById("saveBtn");
+const tableBody = document.querySelector("#data-table tbody");
 
-// Log In
-loginBtn.addEventListener("click", async () => {
-  const email = emailInput.value;
-  const password = passwordInput.value;
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    alert("Login successful!");
-  } catch (error) {
-    alert("Login failed: " + error.message);
-  }
-});
+// Auth
+signupBtn.onclick = () => {
+  createUserWithEmailAndPassword(auth, email.value, password.value)
+    .then(() => alert("Sign up successful!"))
+    .catch(err => alert(err.message));
+};
 
-// Auth State Listener
-onAuthStateChanged(auth, user => {
+loginBtn.onclick = () => {
+  signInWithEmailAndPassword(auth, email.value, password.value)
+    .then(() => alert("Login successful!"))
+    .catch(err => alert(err.message));
+};
+
+logoutBtn.onclick = () => {
+  signOut(auth).then(() => alert("Logged out!"));
+};
+
+// Save details
+saveBtn.onclick = async () => {
+  const name = nameField.value.trim();
+  const phone = phoneField.value.trim();
+  const address = addressField.value.trim();
+  const user = auth.currentUser;
+
+  if (!user || !name || !phone || !address) {
+    alert("Fill all fields.");
+    return;
+  }
+
+  try {
+    await addDoc(collection(db, "personalData"), {
+      uid: user.uid,
+      name,
+      phone,
+      address
+    });
+    alert("Information saved successfully!");
+    nameField.value = phoneField.value = addressField.value = "";
+    loadTableData(user.uid);
+  } catch (err) {
+    alert("Error saving: " + err.message);
+  }
+};
+
+// Show/Hide sections based on login
+onAuthStateChanged(auth, (user) => {
   if (user) {
     authSection.style.display = "none";
     formSection.style.display = "block";
+    loadTableData(user.uid);
   } else {
     authSection.style.display = "block";
     formSection.style.display = "none";
   }
 });
 
-// Save Personal Info
-saveBtn.addEventListener("click", async () => {
-  const name = nameInput.value;
-  const phone = phoneInput.value;
-  const address = addressInput.value;
-  const user = auth.currentUser;
-
-  if (!user) {
-    alert("Not logged in.");
-    return;
-  }
-
-  try {
-    await setDoc(doc(db, "users", user.uid), {
-      name,
-      phone,
-      address,
-      email: user.email
-    });
-    alert("Information saved successfully!");
-  } catch (error) {
-    alert("Failed to save data: " + error.message);
-  }
-});
+// Load Firestore data into table
+async function loadTableData(uid) {
+  tableBody.innerHTML = "";
+  const q = query(collection(db, "personalData"), where("uid", "==", uid));
+  const querySnapshot = await getDocs(q);
+  querySnapshot.forEach((doc) => {
+    const data = doc.data();
+    const row = `<tr><td>${data.name}</td><td>${data.phone}</td><td>${data.address}</td></tr>`;
+    tableBody.innerHTML += row;
+  });
+}
