@@ -3,52 +3,86 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Personal Info Manager - TecHub</title>
+  <title>Personal Info Manager</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: 30px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      background-color: #f9f9f9;
+    }
+    h2 {
+      color: #333;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 5px;
+      border: 1px solid #aaa;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+    #logoutBtn {
+      background-color: #dc3545;
+    }
+  </style>
 </head>
 <body>
-  <h2>Personal Info Manager</h2>
 
-  <!-- Login Section -->
-  <div id="login-section">
-    <input type="email" id="email" placeholder="Email" />
-    <input type="password" id="password" placeholder="Password" />
+  <!-- Auth Section -->
+  <div id="auth-section">
+    <h2>Login / Signup</h2>
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Password" required />
     <button id="loginBtn">Login</button>
     <button id="signupBtn">Sign Up</button>
   </div>
 
-  <!-- Dashboard -->
-  <div id="dashboard" style="display:none;">
-    <p id="dashboardSummary">
-      <strong>User:</strong> <span id="userEmail"></span> |
-      <strong>Total Records:</strong> <span id="recordCount">0</span>
-    </p>
-
-    <!-- Form -->
-    <h3>Enter Personal Info</h3>
-    <input type="text" id="name" placeholder="Name" />
-    <input type="text" id="phone" placeholder="Phone" />
+  <!-- Form Section -->
+  <div id="form-section" style="display:none;">
+    <h2>Enter Your Details</h2>
+    <input type="text" id="name" placeholder="Full Name" />
+    <input type="text" id="phone" placeholder="Phone Number" />
     <input type="text" id="address" placeholder="Address" />
     <button id="saveBtn">Save Details</button>
     <button id="logoutBtn">Logout</button>
-    <p id="message"></p>
 
-    <!-- Table -->
-    <h3>Saved Data</h3>
-    <table border="1" id="data-table">
+    <h3>Your Saved Entries:</h3>
+    <table id="data-table">
       <thead>
-        <tr><th>Name</th><th>Phone</th><th>Address</th></tr>
+        <tr>
+          <th>Full Name</th>
+          <th>Phone</th>
+          <th>Address</th>
+        </tr>
       </thead>
       <tbody></tbody>
     </table>
-
-    <!-- Export Buttons -->
-    <button id="exportExcelBtn">Export to Excel</button>
-    <button id="exportPdfBtn">Export to PDF</button>
   </div>
 
-  <!-- Firebase + Libraries -->
+  <!-- Firebase Logic -->
   <script type="module" src="script.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 </body>
 </html>
