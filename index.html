@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Personal Info Manager</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 500px;
+      max-width: 700px;
       margin: 30px auto;
       padding: 20px;
       border: 1px solid #ccc;
@@ -28,9 +28,23 @@
       background-color: #007bff;
       color: white;
       border: none;
+      cursor: pointer;
     }
     button:hover {
       background-color: #0056b3;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+    #logoutBtn {
+      background-color: #dc3545;
     }
   </style>
 </head>
@@ -52,9 +66,22 @@
     <input type="text" id="phone" placeholder="Phone Number" />
     <input type="text" id="address" placeholder="Address" />
     <button id="saveBtn">Save Details</button>
+    <button id="logoutBtn">Logout</button>
+
+    <h3>Your Saved Entries:</h3>
+    <table id="data-table">
+      <thead>
+        <tr>
+          <th>Full Name</th>
+          <th>Phone</th>
+          <th>Address</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
 
-  <!-- Firebase Script -->
+  <!-- Firebase Logic -->
   <script type="module" src="script.js"></script>
 
 </body>
