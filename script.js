@@ -1,14 +1,23 @@
 // Firebase SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
-  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-  signOut, onAuthStateChanged
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
 import {
-  getFirestore, collection, addDoc, getDocs, query, where
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// Firebase Configuration
+// Config from your Firebase project
 const firebaseConfig = {
   apiKey: "AIzaSyD-Q46deIPhUBiAUemx7WPZQEUPSU7jpOw",
   authDomain: "personalinfomanager-f12d1.firebaseapp.com",
@@ -19,7 +28,6 @@ const firebaseConfig = {
   measurementId: "G-2XQR8GNZ10"
 };
 
-// Init Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -32,14 +40,15 @@ const signupBtn = document.getElementById("signupBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const authSection = document.getElementById("auth-section");
 const formSection = document.getElementById("form-section");
-
 const nameField = document.getElementById("name");
 const phoneField = document.getElementById("phone");
 const addressField = document.getElementById("address");
 const saveBtn = document.getElementById("saveBtn");
 const tableBody = document.querySelector("#data-table tbody");
+const userEmail = document.getElementById("user-email");
+const recordCount = document.getElementById("record-count");
 
-// Authentication Handlers
+// Auth
 signupBtn.onclick = () => {
   createUserWithEmailAndPassword(auth, email.value, password.value)
     .then(() => alert("Sign up successful!"))
@@ -56,7 +65,7 @@ logoutBtn.onclick = () => {
   signOut(auth).then(() => alert("Logged out!"));
 };
 
-// Save user data
+// Save details
 saveBtn.onclick = async () => {
   const name = nameField.value.trim();
   const phone = phoneField.value.trim();
@@ -83,11 +92,12 @@ saveBtn.onclick = async () => {
   }
 };
 
-// Show/hide section based on login
+// Show/Hide sections based on login
 onAuthStateChanged(auth, (user) => {
   if (user) {
     authSection.style.display = "none";
     formSection.style.display = "block";
+    userEmail.textContent = user.email;
     loadTableData(user.uid);
   } else {
     authSection.style.display = "block";
@@ -95,39 +105,17 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// Load data into table
+// Load Firestore data into table + update record count
 async function loadTableData(uid) {
   tableBody.innerHTML = "";
   const q = query(collection(db, "personalData"), where("uid", "==", uid));
   const querySnapshot = await getDocs(q);
+  let count = 0;
   querySnapshot.forEach((doc) => {
     const data = doc.data();
     const row = `<tr><td>${data.name}</td><td>${data.phone}</td><td>${data.address}</td></tr>`;
     tableBody.innerHTML += row;
+    count++;
   });
+  recordCount.textContent = count;
 }
-
-// Export to Excel
-document.getElementById("exportExcelBtn").onclick = () => {
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.table_to_sheet(document.getElementById("data-table"));
-  XLSX.utils.book_append_sheet(wb, ws, "PersonalInfo");
-  XLSX.writeFile(wb, "personal_info.xlsx");
-};
-
-// Export to PDF
-document.getElementById("exportPdfBtn").onclick = () => {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  doc.text("Personal Info", 10, 10);
-
-  let y = 20;
-  const rows = document.querySelectorAll("#data-table tbody tr");
-  rows.forEach((row, i) => {
-    const cols = row.querySelectorAll("td");
-    const text = Array.from(cols).map(col => col.innerText).join(" | ");
-    doc.text(text, 10, y + i * 10);
-  });
-
-  doc.save("personal_info.pdf");
-};
