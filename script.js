@@ -119,3 +119,30 @@ async function loadTableData(uid) {
   });
   recordCount.textContent = count;
 }
+// Export to Excel
+document.getElementById("exportExcelBtn").addEventListener("click", () => {
+  const table = document.getElementById("data-table");
+  const wb = XLSX.utils.table_to_book(table, { sheet: "Personal Info" });
+  XLSX.writeFile(wb, "personal_info.xlsx");
+});
+
+// Export to PDF
+document.getElementById("exportPdfBtn").addEventListener("click", async () => {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  let y = 10;
+  doc.setFontSize(14);
+  doc.text("Personal Information", 10, y);
+  y += 10;
+
+  const rows = document.querySelectorAll("#data-table tbody tr");
+  rows.forEach((row, index) => {
+    const cols = row.querySelectorAll("td");
+    const line = `${cols[0].innerText} | ${cols[1].innerText} | ${cols[2].innerText}`;
+    doc.text(line, 10, y + (index + 1) * 10);
+  });
+
+  doc.save("personal_info.pdf");
+});
+
