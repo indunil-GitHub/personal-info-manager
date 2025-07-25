@@ -33,9 +33,6 @@
     button:hover {
       background-color: #0056b3;
     }
-    #logoutBtn {
-      background-color: #dc3545;
-    }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -46,10 +43,15 @@
       padding: 10px;
       text-align: left;
     }
-    .export-buttons {
-      margin-top: 10px;
-      display: flex;
-      gap: 10px;
+    #logoutBtn {
+      background-color: #dc3545;
+    }
+    #dashboard {
+      margin-bottom: 20px;
+      background-color: #e9f5ff;
+      padding: 10px;
+      border: 1px solid #b3d8ff;
+      border-radius: 5px;
     }
   </style>
 </head>
@@ -66,6 +68,11 @@
 
   <!-- Form Section -->
   <div id="form-section" style="display:none;">
+    <div id="dashboard">
+      <p><strong>Logged in as:</strong> <span id="user-email"></span></p>
+      <p><strong>Total Records:</strong> <span id="record-count">0</span></p>
+    </div>
+
     <h2>Enter Your Details</h2>
     <input type="text" id="name" placeholder="Full Name" />
     <input type="text" id="phone" placeholder="Phone Number" />
@@ -84,18 +91,10 @@
       </thead>
       <tbody></tbody>
     </table>
-
-    <div class="export-buttons">
-      <button id="exportExcelBtn">Export to Excel</button>
-      <button id="exportPdfBtn">Export to PDF</button>
-    </div>
   </div>
-
-  <!-- Required Libraries -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <!-- Firebase Logic -->
   <script type="module" src="script.js"></script>
+
 </body>
 </html>
