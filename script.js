@@ -1,9 +1,14 @@
 // Firebase SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import {
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+  getFirestore, collection, addDoc, getDocs, query, where
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// Config from your Firebase project
+// Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyD-Q46deIPhUBiAUemx7WPZQEUPSU7jpOw",
   authDomain: "personalinfomanager-f12d1.firebaseapp.com",
@@ -14,6 +19,7 @@ const firebaseConfig = {
   measurementId: "G-2XQR8GNZ10"
 };
 
+// Init Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -33,7 +39,7 @@ const addressField = document.getElementById("address");
 const saveBtn = document.getElementById("saveBtn");
 const tableBody = document.querySelector("#data-table tbody");
 
-// Auth
+// Authentication Handlers
 signupBtn.onclick = () => {
   createUserWithEmailAndPassword(auth, email.value, password.value)
     .then(() => alert("Sign up successful!"))
@@ -50,7 +56,7 @@ logoutBtn.onclick = () => {
   signOut(auth).then(() => alert("Logged out!"));
 };
 
-// Save details
+// Save user data
 saveBtn.onclick = async () => {
   const name = nameField.value.trim();
   const phone = phoneField.value.trim();
@@ -77,7 +83,7 @@ saveBtn.onclick = async () => {
   }
 };
 
-// Show/Hide sections based on login
+// Show/hide section based on login
 onAuthStateChanged(auth, (user) => {
   if (user) {
     authSection.style.display = "none";
@@ -89,7 +95,7 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// Load Firestore data into table
+// Load data into table
 async function loadTableData(uid) {
   tableBody.innerHTML = "";
   const q = query(collection(db, "personalData"), where("uid", "==", uid));
@@ -100,3 +106,28 @@ async function loadTableData(uid) {
     tableBody.innerHTML += row;
   });
 }
+
+// Export to Excel
+document.getElementById("exportExcelBtn").onclick = () => {
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.table_to_sheet(document.getElementById("data-table"));
+  XLSX.utils.book_append_sheet(wb, ws, "PersonalInfo");
+  XLSX.writeFile(wb, "personal_info.xlsx");
+};
+
+// Export to PDF
+document.getElementById("exportPdfBtn").onclick = () => {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.text("Personal Info", 10, 10);
+
+  let y = 20;
+  const rows = document.querySelectorAll("#data-table tbody tr");
+  rows.forEach((row, i) => {
+    const cols = row.querySelectorAll("td");
+    const text = Array.from(cols).map(col => col.innerText).join(" | ");
+    doc.text(text, 10, y + i * 10);
+  });
+
+  doc.save("personal_info.pdf");
+};
